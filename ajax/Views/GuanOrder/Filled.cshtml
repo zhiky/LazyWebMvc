@@ -1,0 +1,80 @@
+﻿
+@{
+    ViewBag.Title = "Filled";
+}
+
+<h2>订单详情</h2>
+<table class="table table-hover">
+    <tr>
+        <td>店铺名称</td>
+        <td><label id="storename"></label></td>
+    </tr>
+    <tr>
+        <td>商品名称</td>
+        <td><label id="proname"></label></td>
+    </tr>
+    <tr>
+        <td>商品价格</td>
+        <td><label id="price"></label></td>
+    </tr>
+    <tr>
+        <td>商品市场价</td>
+        <td><label id="shiprice"></label></td>
+    </tr>
+    <tr>
+        <td>运费</td>
+        <td><label id="yunfei"></label></td>
+    </tr>
+    <tr>
+        <td>收货人</td>
+        <td><label id="Uname"></label></td>
+    </tr>
+    <tr>
+        <td>下单时间</td>
+        <td><label id="Times"></label></td>
+    </tr>
+    <tr>
+        <td>商品数量</td>
+        <td><label id="ShopNum"></label></td>
+    </tr>
+    <tr>
+        <td>订单状态</td>
+        <td><label id="OrderState"></label></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><input id="Button1" type="button" value="返回" class="btn btn-info" onclick="location.href='/GuanOrder/GuanOrderShow'" /></td>
+    </tr>
+</table>
+@section scripts
+{
+    <script>
+        //页面第一次加载
+        $(function () {
+            Fill();
+        })
+        //var goodid = this.location.search.substr(this.location.search.indexof('=') + 1);
+        function Fill() {
+            $.ajax({
+                url: 'https://localhost:44311/api/GuanOrder/Gets?id=' +@ViewContext.RouteData.Values["id"],
+                type: 'get',
+                dataType: 'json',
+                success: function (d) {
+                    $("#storename").text(d.Stname);
+                    $("#proname").text(d.Pname);
+                    $("#price").text(d.Pprice);
+                    $("#shiprice").text(d.Pmarket);
+
+                    $("#yunfei").text(d.Pyunfei);
+
+                    $("#Uname").text(d.Uname);
+                    $("#Times").text(d.OrderDate);
+                    $("#ShopNum").text(d.Count);
+                    $("#OrderState").text((d.OrderStatus==4?"已退货":"待发货"));
+
+                }
+            })
+        }
+    </script>
+}
+

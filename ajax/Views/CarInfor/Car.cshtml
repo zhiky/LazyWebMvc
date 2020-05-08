@@ -1,0 +1,170 @@
+﻿
+@{
+    ViewBag.Title = "Car";
+}
+
+<h2>我的购物车</h2>
+<input id="Button1" type="button" value="清空购物车" onclick="DelCar(id)" />
+<input id="remove" type="button" value="批量删除" />
+<table class="table-bordered table">
+    <thead>
+        <tr>
+            <td><input id="one" type="checkbox" />全选</td>
+            <td>商品图片</td>
+            <td>商品名称</td>
+            <td>商品分类</td>
+            <td>商品品牌</td>
+            <td>商品单价</td>
+            <td>商品数量</td>
+            <td>合计</td>
+            <td>操作</td>
+        </tr>
+    </thead>
+    <tbody id="tb"></tbody>
+</table>
+
+@section scripts{
+    <script>
+         //全选框
+    $("#one").click(function () {
+        $(":input:checkbox:gt(0)").prop("checked", $(this).prop("checked"))
+    });
+
+    $("#remove").click(function () {
+        var CId = "";//创建一个数组
+        $("input:checkbox:gt(0):checked").each(function () {
+            var id = $(this).val();
+            CId += id + ',';
+        });     
+        console.log(CId)
+        var msg = "确定要删除吗？"
+        if (confirm(msg) == true) {
+            //异步访问批量删除方法，把数组传入controller层
+            $.ajax({
+                url: 'https://localhost:44311/api/CarInfors/DelCarles?CId=' + CId,
+                type: "post",
+                success: function (data) {
+                    if (data > 0) {
+                        alert('删除成功');
+                        location.reload();
+                    }
+                    else {
+                        alert('删除失败');
+                    }
+                }
+            });
+        }
+        else { return false }
+    });
+        //页面第一次加载
+        $(function () {
+            Show();
+        })
+        //取值用户ID
+        function getCookie(userid) {
+            if (document.cookie.length > 0) {
+                c_start = document.cookie.indexOf(userid + "=")
+                if (c_start != -1) {
+                    c_start = c_start + c_name.length + 1
+                    c_end = document.cookie.indexOf(";", c_start)
+                    if (c_end == -1) c_end = document.cookie.length
+                    return unescape(document.cookie.substring(c_start, c_end))
+                }
+            }
+            return ""
+        }
+        function Show() {
+            $.ajax({
+                url: "https://localhost:44311/api/CarInfors?userid=" + getCookie("userid"),
+                type: "get",
+                dataType: "json",
+                success: function (d) {
+                    //清空表格
+                    $("#tb").empty();
+                    //循环遍历
+                    $(d.carinfos).each(function () {
+                        //拼接tr一行
+                        var line = '<tr>'
+                            + '<td><input id="Checkbox1" type="checkbox" value="' + this.CId + '" /></td>'
+                            + '<td>' + '<img src="' + this.Ptupian + '" alt="" Width=100,Height=100 />' + '</td > '
+                            + '<td>' + this.Pname + '</td>'
+                            + '<td>' + this.Sname + '</td>'
+                            + '<td>' + this.Bname + '</td>'
+                            + '<td>' + this.Pmarket + '</td>'
+                            + '<td>' + '<a href=javascript:; onclick=Uptjia(' + this.CId + ')>+</a>' + '' + this.Ccount + '' + '<a href=javascript:; onclick=Uptjian(' + this.CId + ')>-</a>' + '</td>'
+                            + '<td>' + this.heji + '</td>'
+                            + '<td>' + '<a href=javascript:; onclick=Del(' + this.CId + ')>删除</a>' + '' + '<a href=javascript:; onclick=AddOrder(' + this.CId + ')>购买</a>' + '</td>'
+                            + '</tr>'
+                        //将数据放入表格
+                        $("#tb").append(line);
+                    });
+                }
+            });
+        }
+        //删除购物车
+        function Del(CId) {
+            $.ajax({
+                url: 'https://localhost:44311/api/CarInfors/DelCar?id=' + CId,
+                type: 'get',
+                dataType:'json',
+                success: function (d) {
+                    alert("删除成功");
+                    location.href = '/CarInfor/Car';
+                }
+            })
+        }
+        //清空购物车
+        function DelCar() {
+            $.ajax({
+                url: 'https://localhost:44311/api/Carinforss/DelCarInfor?id=' + getCookie("userid"),
+                type: 'get',
+                dataType:'json',
+                success: function (d) {
+                    alert("清空成功");
+                    location.href = '/CarInfor/Car';
+                }
+            })
+        }
+        //加购物车商品数量
+        function Uptjia(CId) {
+            $.ajax({
+                url: 'https://localhost:44311/api/Carjia/Uptjia?id=' + CId,
+                type: 'get',
+                dataType: 'json',
+                success: function (d) {
+                    location.reload();
+                }
+            })
+        }
+        //加购物车商品数量
+        function Uptjian(CId) {
+            $.ajax({
+                url: 'https://localhost:44311/api/Carjian/Uptjian?id=' + CId,
+                type: 'get',
+                dataType: 'json',
+                success: function (d) {
+                    location.reload();
+                }
+            })
+        }
+        //添加订单
+        function AddOrder(CSId) {
+
+            var obj = {};
+            obj.PId = CSId;
+            obj.OrderNo = "1111";
+            $.ajax({
+                url: "https://localhost:44311/api/Order",
+                type: "Post",
+                dataType: "json",
+                data: obj,
+                success: function (d) {
+                    alert(d.Msg1);
+                    location.href = '/Order/OrderShow?Uid=' + getCookie("userid");
+                }
+            })
+        }
+    </script>
+
+}
+

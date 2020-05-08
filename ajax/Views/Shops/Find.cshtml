@@ -1,0 +1,105 @@
+﻿
+@{
+    ViewBag.Title = "Find";
+}
+
+<h2>商品详情</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <td> 商品图片</td>
+            @*<td><img src="@Model.Ptupian" alt="BTp" width="100" height="100" /></td>*@
+        </tr>
+        <tr>
+            <td> 商品名称</td>
+            <td><input id="DName" type="text" style="border:none" /></td>
+        </tr>
+        <tr>
+            <td> 商品分类</td>
+            <td><input id="DPtype" type="text" style="border:none" /></td>
+        </tr>
+        <tr>
+            <td>商品品牌</td>
+            <td><input id="DPpinpai" type="text" style="border:none" /></td>
+        </tr>
+        <tr>
+            <td> 商品库存</td>
+            <td><input id="DPkucun" type="text" style="border:none" /></td>
+        </tr>
+        <tr>
+            <td> 商品价格</td>
+            <td><input id="DPprice" type="text" style="border:none" /></td>
+        </tr>
+        <tr>
+            <td> 商品市场价</td>
+            <td><input id="DPmarket" type="text" style="border:none" /></td>
+        </tr>
+        <tr>
+            <td> 商品单位</td>
+            <td><input id="DPdanwei" type="text" style="border:none" /></td>
+        </tr>
+        <tr>
+            <td> 商品货号</td>
+            <td><input id="DPhuohao" type="text" style="border:none" /></td>
+        </tr>
+        <tr>
+            <td> 商品规格</td>
+            <td><input id="DPguige" type="text" style="border:none" /></td>
+        </tr>
+        <tr>
+            <td> 商品单位内重量</td>
+            <td><input id="DPzhong" type="text" style="border:none" /></td>
+        </tr>
+        <tr>
+            <td> 商品运费</td>
+            <td><input id="DPyunfei" type="text" style="border:none" /></td>
+        </tr>
+        <tr>
+            <td> 商品状态</td>
+            <td><input id="DPstate" type="text" style="border:none" /></td>
+        </tr>
+        <tr>
+            <td><input id="Hidden1" type="hidden" value="@Request["did"]" /></td>
+            <td><input id="Button1" type="button" class="btn btn-primary" value="返回" onclick="location.href='/Shops/Show'" /></td>
+        </tr>
+    </thead>
+</table>
+
+@section scripts{
+
+
+    <script>
+        $(function () {
+            Find();
+        })
+        //var id = location.search.substr(location.search.indexOf('=')+1)
+        function Find() {
+            var id = $("#Hidden1").val();
+            $.ajax({
+                url: "https://localhost:44311/api/Shop/Getone?did=" + id,
+                type: "get",
+                dataType: "json",
+                success: function (d) {
+                    $("#BTp").val(d.Ptupian);
+                    $("#DName").val(d.Pname);
+                    $("#DPtype").val(d.Sname);
+                    $("#DPpinpai").val(d.Bname);
+                    $("#DPkucun").val(d.Pkucun);
+                    $("#DPprice").val(d.Pprice);
+                    $("#DPmarket").val(d.Pmarket);
+                    $("#DPdanwei").val(d.Pdanwei);
+                    $("#DPhuohao").val(d.Phuohao);
+                    $("#DPguige").val(d.Pguige);
+                    $("#DPzhong").val(d.Pzhong);
+                    $("#DPyunfei").val(d.Pyunfei);
+                    $("#DPstate").val((d.Pstate==1?"已上架":"已下架"));
+                }
+            })
+
+        }
+    </script>
+
+
+}
+

@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+</body>
+</html>
+<form>
+    <span class="error_msg"></span>
+    <p class="pst_relative">
+        <label class="input_msg"></label><input type="text" name="username" placeholder="用户名" class="login_input" maxlength="60">
+    </p>
+    <p class="pst_relative">
+        <label class="input_msg"></label><input type="password" name="passwd" placeholder="密码" onkeydown="keydown(event)" class="login_input" maxlength="60">
+    </p>
+    <p class="clearfix">
+        <span class="fl_left w_b60 psw_info">
+            <input type="checkbox" id="remmberpwd">
+            <label for="remmberpwd">记住密码</label>
+        </span>
+        <a class="fl_right psw_info" href="#">忘记密码？</a>
+    </p>
+    <p class="clearfix">
+        <input class="fl_left btn btn_login" type="button" value="登   录">
+        <a class="fl_right log_rega" href="#">免费注册</a>
+    </p>
+</form>
+<script>
+    $(function () {
+        var height = $(document).height();
+        var bgheight = $(".login_bg").height();
+        $(".login_bg").css({ "height": height + "px" });
+
+        $(".error_msg").hide();
+
+        // 默认账号输入框获得焦点
+        $('input[name=username]').focus();
+
+        // 点击登陆
+        $('.btn_login').click(function () {
+            var username = $.trim($('input[name=username]').val());
+            var passwd = $.trim($('input[name=passwd]').val());
+            var remember = $('#remmberpwd').is(':checked') ? 1 : 0;
+            if (username == '') {
+                $(".error_msg").html('请填写用户名');
+                $(".error_msg").show().fadeOut(2000);
+                $('input[name=username]').focus();
+                return false;
+            } else if (passwd == '') {
+                $(".error_msg").html('请填写密码');
+                $(".error_msg").show().fadeOut(2000);
+                $('input[name=passwd]').focus();
+                return false;
+            }
+
+            // 异步提交
+            $.post('url', 'username=' + username + '&password=' + passwd + '&remember=' + remember, function (json) {
+
+                // 验证失败
+                if (json.status == 0) {
+                    $(".error_msg").html(json.message);
+                    $(".error_msg").show().fadeOut(2000);
+
+                    // 成功
+                } else {
+                    console.log('success');
+                    //location.href = '';
+                }
+            }, 'json')
+        })
+    });
+
+    // 判断回车
+    function keydown(e) {
+        var e = e || event;
+        if (e.keyCode == 13) {
+            $(".btn_login").click();
+        }
+    } 
+</script>

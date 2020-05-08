@@ -1,0 +1,107 @@
+﻿
+@{
+    ViewBag.Title = "OrderShow";
+}
+
+<h2>我的订单</h2>
+<table class="table-bordered table">
+    <thead>
+        <tr>
+            <td>订单编号</td>
+            <td>商品名称</td>
+            <td>商品图片</td>
+            <td>单价</td>
+            <td>数量</td>
+            <td>订单金额</td>
+            <td>订单日期</td>
+            <td>订单状态</td>
+            <td>操作</td>
+        </tr>
+    </thead>
+    <tbody id="tb"></tbody>
+</table>
+<table class=" table-bordered table">
+    <tr>
+        <td>总记录数<span id="TotalCount"></span>条</td>
+        <td>总共<span id="TotalPage"></span>页</td>
+        <td>当前第<span id="CurrentPage"></span>页</td>
+        <td><a href="javascript:;" onclick="Show(1)">首页</a></td>
+        <td><a href="javascript:;" onclick="Show(CurrentPage-1)">上一页</a></td>
+        <td><a href="javascript:;" onclick="Show(CurrentPage+1)">下一页</a></td>
+        <td><a href="javascript:;" onclick="Show(TotalPage)">尾页</a></td>
+
+    </tr>
+</table>
+@section scripts
+{
+    <script>
+        //页面第一次加载
+        $(function () {
+            Show();
+        })
+        //取值用户ID
+        function getCookie(userid) {
+            if (document.cookie.length > 0) {
+                c_start = document.cookie.indexOf(userid + "=")
+                if (c_start != -1) {
+                    c_start = c_start + c_name.length + 1
+                    c_end = document.cookie.indexOf(";", c_start)
+                    if (c_end == -1) c_end = document.cookie.length
+                    return unescape(document.cookie.substring(c_start, c_end))
+                }
+            }
+            return ""
+        }
+        function Show(page) {
+            $.ajax({
+                url: "https://localhost:44311/api/Order?Uid=" + getCookie("userid"),
+                type: "get",
+                dataType: "json",
+                data: {CurrentPage: page },
+                success: function (d) {
+                    $("#TotalCount").text(d.TotalCount)
+                    $("#TotalPage").text(d.TotalPage)
+                    $("#CurrentPage").text(d.CurrentPage)
+                    //最大页
+                    TotalPage = d.TotalPage;
+                    //当前页
+                    CurrentPage = d.CurrentPage;
+                    //清空表格
+                    $("#tb").empty();
+                    //循环遍历
+                    $(d.orderModels).each(function () {
+                        //拼接tr一行
+                        var line = '<tr>'
+                            + '<td>' + this.OrderNo      + '</td > '
+                            + '<td>' + this.Pname + '</td>'
+                            + '<td>' + '<img src="' + this.Ptupian + '" alt="" Width=100,Height=100 />' + '</td > '
+                            + '<td>' + this.Pmarket    + '</td>'
+                            + '<td>' + this.Count      + '</td>'
+                            + '<td>' + this.heji       + '</td>'
+                            + '<td>' + this.OrderDate  + '</td>'
+                            + '<td>' + this.OrderStatus + '</td>'
+                            + '<td id="kong" >' + '<a href=javascript:; onclick=Tuihuo(' + this.OId + ')>退货</a>' + '' + '<a href=/Pingjia/Find/' + this.PId + '>评价</a>' + '</td>'
+                            + '</tr>'
+                        //将数据放入表格
+                        $("#tb").append(line);
+                    });
+                }
+            });
+        }
+        function Tuihuo(OId) {
+            $.ajax({
+                url: 'https://localhost:44311/api/Order/GetTui?id=' + OId,
+                type: 'get',
+                dataType: 'json',
+                success: function (d) {
+                    if (d.Code == 1) {
+                        //$("#kong").html() = null;
+                        alert("退货成功");
+                        location.href = '/Order/OrderShow';
+                    }
+                }
+            })
+        }
+        
+    </script>
+}

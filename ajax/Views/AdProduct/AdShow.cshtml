@@ -1,0 +1,200 @@
+﻿
+@{
+    ViewBag.Title = "AdShow";
+}
+
+
+<h2>欢迎来到慵懒购物商城</h2>
+<table>
+    <tr>
+        <td>商品名称</td>
+        <td><input id="name" type="text" /></td>&nbsp;&nbsp;
+        <td>店铺名称</td>
+        <td><select id="store"></select></td>&nbsp;&nbsp;
+        <td>商品状态</td>
+        <td><select id="enable">
+    <option value="2">请选择商品状态</option>
+    <option value="0">已下架</option>
+    <option value="1">已上架</option>
+</select></td>&nbsp;&nbsp;
+        <td><input id="Button1" type="button" value="查询" class="btn btn-default" onclick="Show(1), Add()" /></td>
+    </tr>
+</table>
+
+<div id="Tbody"></div>
+
+<table class="table-bordered table">
+    <thead>
+        <tr>
+            <td>商品编号</td>
+            <td>商品名称</td>
+            <td>店铺名</td>
+            <td>分类</td>
+            <td>品牌</td>
+            <td>价格（￥）</td>
+            <td>库存</td>
+            <td>商品状态</td>
+            <td>操作</td>
+        </tr>
+    </thead>
+    <tbody id="tb" class=" text-center">
+    </tbody>
+</table>
+<table class=" table-bordered table">
+    <tr>
+        <td>总记录数<span id="TotalCount"></span>条</td>
+        <td>总共<span id="TotalPage"></span>页</td>
+        <td>当前第<span id="CurrentPage"></span>页</td>
+        <td><a href="javascript:;" onclick="Show(1)">首页</a></td>
+        <td><a href="javascript:;" onclick="Show(CurrentPage-1)">上一页</a></td>
+        <td><a href="javascript:;" onclick="Show(CurrentPage+1)">下一页</a></td>
+        <td><a href="javascript:;" onclick="Show(TotalPage)">尾页</a></td>
+
+    </tr>
+</table>
+
+@section scripts{
+    <script>
+            //页面第一次加载
+            $(function () {
+                Bandla();
+                Bandla1();
+            })
+            //绑定店铺下拉
+            function Bandla() {
+                $.ajax({
+                    url: "https://localhost:44311/api/Store",
+                    type: "get",
+                    dataType: "json",
+                    success: function (d) {
+                        //清空下拉框
+                        $("#store").empty();
+                        $("#store").append("<option value=0>请选择店铺名称</option>");
+                        //拼接一个下拉项
+                        $(d).each(function () {
+                            var opt = "<option value=" + this.Stid + ">" + this.Stname + "</option>";
+                            //将数据放入表格
+                            $("#store").append(opt);
+                        });
+                        Show(1)
+                    }
+                })
+            }
+            ////绑定状态下拉
+            //function Bandla1() {
+            //    $.ajax({
+            //        url: "https://localhost:44311/api/Enable",
+            //        type: "get",
+            //        dataType: "json",
+            //        success: function (d) {
+            //            //清空表格
+            //            $("#enable").empty();
+            //            $("#enable").append("<option value=2>请选择商品状态</option>");
+            //            $(d).each(function () {
+            //                //拼接一个下拉选项
+            //                $("#enable").append("<option value=1>已上架</option>");
+            //                $("#enable").append("<option value=0>以下架</option>");
+            //                //将数据放入表格
+            //                //$("#enable").append(opt);
+            //            });
+            //            Show(1);
+            //        }
+            //    });
+            //}
+            ////取值
+            //function getCookie(userid) {
+            //    if (document.cookie.length > 0) {
+            //        c_start = document.cookie.indexOf(userid + "=")
+            //        if (c_start != -1) {
+            //            c_start = c_start + c_name.length + 1
+            //            c_end = document.cookie.indexOf(";", c_start)
+            //            if (c_end == -1) c_end = document.cookie.length
+            //            return unescape(document.cookie.substring(c_start, c_end))
+            //        }
+            //    }
+            //    return ""
+            //}
+            //商品列表显示
+            function Show(page) {
+                $.ajax({
+                    url: "https://localhost:44311/api/AdProduct",
+                    type: "get",
+                    dataType: "json",
+                    data: { Name: $("#name").val(), enable: $("#enable").val(), store: $("#store").val(), CurrentPage: page },
+                    success: function (d) {
+                        $("#TotalCount").text(d.TotalCount)
+                        $("#TotalPage").text(d.TotalPage)
+                        $("#CurrentPage").text(d.CurrentPage)
+                        //最大页
+                        TotalPage = d.TotalPage;
+                        //当前页
+                        CurrentPage = d.CurrentPage;
+                        //清空表格
+                        $("#tb").empty();
+                        //循环遍历
+                        $(d.adproductModels).each(function () {
+                            //拼接tr一行
+                            var line = '<tr>'
+                                + '<td>' + this.Pid + '</td>'
+                                + '<td>' + this.Pname + '</td>'
+                                + '<td>' + this.Stname + '</td>'
+                                + '<td>' + this.Sname + '</td>'
+                                + '<td>' + this.Bname + '</td>'
+                                + '<td>' + this.Pprice + '</td>'
+                                + '<td>' + this.Pkucun + '</td>'
+                                + '<td>' + (this.Pstate==1?"已上架":"已下架") + '</td>'
+                                + '<td>' + '<a href=javascript:; onclick="Xiajia(' + this.Pid + ')">违规下架</a>' + '    ' + '<a href=/AdProduct/Fill/' + this.Pid + '>更多</a>' + '</td>'
+                                + '</tr>'
+                            //将数据放入表格
+                            $("#tb").append(line);
+                        });
+                    }
+                });
+            }
+        //点击更多按钮
+        //function Profill(id) {
+        //    location.href = '/AdProduct/Fill?id=' + id;
+        //}
+        function Xiajia(Pid) {
+            $.ajax({
+                url: 'https://localhost:44311/api/Enable/Post?id=' + Pid,
+                type: 'Get',
+                dataType: 'json',
+                success: function (d) {
+                    if (d>0) {
+                        location.href = '/AdProduct/Add';
+                    }
+                    
+                }
+            })
+        }
+        //function FillPro() {
+        //    $.ajax({
+        //        url: 'https://localhost:44311/api/adProduct?id='Pid
+        //        type: 'get',
+        //        dataType: 'json',
+        //        success: function (d) {
+        //            $("#DrugNumber").val(d.DrugNumber);
+        //            $("#DrugName").val(d.DrugName);
+        //            $("#DrugPrice").val(d.DrugPrice);
+        //            $("#DrugSelling").val(d.DrugSelling);
+        //            $("#ManufacturersName").val(d.ManufacturersId);
+        //            if (d.DrugStatus) {
+        //                Radio1.checked = true;
+        //            }
+        //            else {
+        //                Radio2.checked = true;
+        //            }
+        //            $("#DrugCreateTime").val(d.DrugCreateTime);
+        //            $("#DrugTypeName").val(d.DrugTypeId);
+        //            $("#Specification").val(d.Specification);
+        //            $("#InventoryUpperLimit").val(d.InventoryUpperLimit);
+        //            $("#InventoryLowerLimit").val(d.InventoryLowerLimit);
+        //            $("#DrugContent").val(d.DrugContent);
+        //            $("#DrugCount").val(d.DrugCount);
+        //        }
+        //    })
+        //}
+
+    </script>
+}

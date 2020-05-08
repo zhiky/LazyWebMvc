@@ -1,0 +1,103 @@
+﻿
+@{
+    ViewBag.Title = "Fill";
+}
+
+<h2>Fill</h2>
+
+<table>
+    <tr>
+        <td>店铺名称</td>
+        <td><label id="storename"></label></td>
+    </tr>
+    <tr>
+        <td>商品名称</td>
+        <td><label id="proname"></label></td>
+    </tr>
+    <tr>
+        <td>商品分类</td>
+        <td><label id="typename"></label></td>
+    </tr>
+    <tr>
+        <td>商品品牌</td>
+        <td><label id="pinpainame"></label></td>
+    </tr>
+    <tr>
+        <td>商品库存</td>
+        <td><label id="kucun"></label></td>
+    </tr>
+    <tr>
+        <td>商品价格</td>
+        <td><label id="price"></label></td>
+    </tr>
+    <tr>
+        <td>商品市场价</td>
+        <td><label id="shiprice"></label></td>
+    </tr>
+    <tr>
+        <td>商品单位</td>
+        <td><label id="danwei"></label></td>
+    </tr>
+    <tr>
+        <td>商品货号</td>
+        <td><label id="num"></label></td>
+    </tr>
+    <tr>
+        <td>商品ID</td>
+        <td><label id="proid"></label></td>
+    </tr>
+    <tr>
+        <td>商品规格</td>
+        <td><label id="guige"></label></td>
+    </tr>
+    <tr>
+        <td>商品单位内重量</td>
+        <td><label id="weight"></label></td>
+    </tr>
+    <tr>
+        <td>运费</td>
+        <td><label id="yunfei"></label></td>
+    </tr>
+    <tr>
+        <td>商品状态</td>
+        <td><label id="enable"></label></td>
+    </tr>
+</table>
+@section scripts
+{
+    <script>
+        //页面第一次加载
+        $(function () {
+
+            Fill();
+
+        })
+        //var goodid = this.location.search.substr(this.location.search.indexof('=') + 1);
+        function Fill() {
+            $.ajax({
+                url: 'https://localhost:44311/api/AdProduct/GetFind?id=' +@ViewContext.RouteData.Values["id"],
+                type: 'get',
+                dataType: 'json',
+                success: function (d) {
+                    $("#storename").text(d.Stname);
+                    $("#proname").text(d.Pname);
+                    $("#typename").text(d.Sname);
+                    $("#pinpainame").text(d.Bname);
+                    $("#kucun").text(d.Pkucun);
+
+                    $("#price").text(d.Pprice);
+                    $("#shiprice").text(d.Pmarket);
+                    $("#danwei").text(d.Pdanwei);
+                    $("#num").text(d.Phuohao);
+                    $("#proid").text(d.Pid);
+
+                    $("#guige").text(d.Pguige);
+                    $("#weight").text(d.Pzhong);
+                    $("#yunfei").text(d.Pyunfei);
+                    $("#enable").text((d.Pstate==1?"已上架":"已下架"));
+
+                }
+            })
+        }
+    </script>
+    }

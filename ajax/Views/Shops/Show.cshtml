@@ -1,0 +1,204 @@
+﻿
+@{
+    ViewBag.Title = "";
+}
+
+<h2>欢迎来到慵懒购物商城</h2>
+    <table >
+        <tr>
+            <td>商品名称</td>
+            <td><input id="name" type="text" /></td>&nbsp;&nbsp;
+            <td>商品分类</td>
+            <td><select id="type"></select></td>&nbsp;&nbsp;
+            <td>商品品牌</td>
+            <td><select id="band"></select></td>&nbsp;&nbsp;
+            <td>价格区间</td>
+            <td><input id="Pricemin" type="text" />——<input id="Pricemax" type="text" /></td>&nbsp;&nbsp;
+            <td><input id="Button1" type="button" value="查询" class="btn btn-default" onclick="Show(1), Add()" /></td>
+        </tr>
+    </table>
+
+    <div id="Tbody"></div>
+
+    <table class="table-bordered table">
+        <thead>
+            <tr>
+                <td>商品图片</td>
+                <td>商品名称</td>
+                <td>店铺名称</td>
+                <td>商品分类</td>
+                <td>商品品牌</td>
+                <td>商品库存</td>
+                <td>商品市场价格</td>
+                <td>商品状态</td>
+                <td>操作</td>
+            </tr>
+        </thead>
+        <tbody id="tb" class=" text-center">
+        </tbody>
+    </table>
+    <table class=" table-bordered table">
+        <tr>
+            <td>总记录数<span id="TotalCount"></span>条</td>
+            <td>总共<span id="TotalPage"></span>页</td>
+            <td>当前第<span id="CurrentPage"></span>页</td>
+            <td><a href="javascript:;" onclick="Show(1)">首页</a></td>
+            <td><a href="javascript:;" onclick="Show(CurrentPage-1)">上一页</a></td>
+            <td><a href="javascript:;" onclick="Show(CurrentPage+1)">下一页</a></td>
+            <td><a href="javascript:;" onclick="Show(TotalPage)">尾页</a></td>
+            
+        </tr>
+    </table>
+
+    @section scripts{
+        <script>
+            //页面第一次加载
+            $(function () {
+                Bandla();
+                Bandla1();
+                Shows();
+            })
+            //绑定品牌下拉
+            function Bandla() {
+                $.ajax({
+                    url: "https://localhost:44311/api/Brand",
+                    type: "get",
+                    dataType: "json",
+                    success: function (d) {
+                        //清空下拉框
+                        $("#band").empty();
+                        $("#band").append("<option value=0>==请选择==</option>");
+                        //拼接一个下拉项
+                        $(d).each(function () {
+                            var opt = "<option value=" + this.Bid + ">" + this.Bname + "</option>";
+                            //将数据放入表格
+                            $("#band").append(opt);
+                        });
+                        Show(1)
+                    }
+                })
+            }
+            //绑定分类下拉
+            function Bandla1() {
+                $.ajax({
+                    url: "https://localhost:44311/api/ShopType",
+                    type: "get",
+                    dataType: "json",
+                    success: function (d) {
+                        //清空表格
+                        $("#type").empty();
+                        $("#type").append("<option value=0>==请选择==</option>");
+                        $(d).each(function () {
+                            //拼接一个下拉选项
+                            var opt = "<option value=" + this.Sid + ">" + this.Sname + "</option>";
+                            //将数据放入表格
+                            $("#type").append(opt);
+                        });
+                        Show(1);
+                    }
+                });
+            }
+            //取值
+            function getCookie(userid) {
+                if (document.cookie.length > 0) {
+                    c_start = document.cookie.indexOf(userid + "=")
+                    if (c_start != -1) {
+                        c_start = c_start + c_name.length + 1
+                        c_end = document.cookie.indexOf(";", c_start)
+                        if (c_end == -1) c_end = document.cookie.length
+                        return unescape(document.cookie.substring(c_start, c_end))
+                    }
+                }
+                return ""
+            }
+            //商品列表显示
+            function Show(page) {
+                $.ajax({
+                    url: "https://localhost:44311/api/Shop",
+                    type: "get",
+                    dataType: "json",
+                    data: { Name: $("#name").val(), Type: $("#type").val(), Band: $("#band").val(), Pricemin: $("#Pricemin").val(), Pricemax: $("#Pricemax").val(), CurrentPage: page },
+                    success: function (d) {
+                        $("#TotalCount").text(d.TotalCount)
+                        $("#TotalPage").text(d.TotalPage)
+                        $("#CurrentPage").text(d.CurrentPage)
+                        //最大页
+                        TotalPage = d.TotalPage;
+                        //当前页
+                        CurrentPage = d.CurrentPage;
+                        //清空表格
+                        $("#tb").empty();
+                        //循环遍历
+                        $(d.shopModels).each(function () {
+                            //拼接tr一行
+                            var line = '<tr>'
+                                + '<td>' + '<img src="' + this.Ptupian + '" alt="" Width=100,Height=100 />' + '</td > '
+                                + '<td>' + this.Pname + '</td>'
+                                + '<td>' + this.Stname + '</td>'
+                                + '<td>' + this.Sname + '</td>'
+                                + '<td>' + this.Bname + '</td>'
+                                + '<td>' + this.Pkucun + '</td>'
+                                + '<td>' + this.Pmarket + '</td>'
+                                + '<td>' + (this.Pstate==1?"已上架":"已下架") + '</td>'
+                                + '<td>' + '<a href=/Shops/Find?did=' + this.Pid + '>详情</a>' + '' + '<a href=javascript:; onclick=AddCar(' + this.Pid + ')>加入购物车</a>' + '</td>'
+                                + '</tr>'
+                            //将数据放入表格
+                            $("#tb").append(line);
+                        });
+                    }
+                });
+            }
+            //添加购物车
+            function AddCar(Pid) {
+
+                var obj = {};
+                obj.CUId = getCookie("userid");
+                obj.CSId = Pid;
+                obj.Ccount = 1;
+                $.ajax({
+                    url: "https://localhost:44311/api/CarInfors",
+                    type: "Post",
+                    dataType: "json",
+                    data: obj,
+                    success: function (d) {
+                        alert(d.Msg);
+                        location.href = '/CarInfor/Car?userid=' + getCookie("userid");
+                    }
+                })
+            }
+            //添加历史记录
+            function Add() {
+                //获取文本
+                var obj = {};
+                obj.Hname = $("#name").val();
+                $.ajax({
+                    url: "https://localhost:44311/api/historic",
+                    type: "post",
+                    dataType: "json",
+                    data: obj,
+                    success: function (d) {
+                        Shows();
+                    }
+                })
+            }
+            //历史记录显示
+            function Shows() {
+                $.ajax({
+                    url: "https://localhost:44311/api/historic",
+                    type: "get",
+                    dataType: "json",
+                    success: function (d) {
+                        //清空表格
+                        $("#Tbody").empty();
+                        //循环遍历
+                        $(d).each(function () {
+                            //拼接tr一行
+                            var line = '<spand>' + this.Hname + '</spand>'
+                            //将数据放入表格
+                            $("#Tbody").append(line);
+                        });
+                    }
+                });
+            }
+        </script>
+    }

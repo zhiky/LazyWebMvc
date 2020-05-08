@@ -1,0 +1,97 @@
+﻿
+@{
+    ViewBag.Title = "GuanOrderShow";
+}
+
+<h2>GuanOrderShow</h2>
+
+
+<h2>订单后台管理</h2>
+<table class="table table-hover">
+    <tr>
+        <td>店铺名称</td>
+        <td><input id="txtname" type="text" placeholder="请输出店铺名称" /></td>
+        <td>订单状态</td>
+        <td>
+            <select id="Select1">
+                <option value="0">请选择订单状态</option>
+                <option value="1">待发货</option>
+                <option value="2">待收货</option>
+                <option value="3">待评价</option>
+                <option value="4">已退货</option>
+                <option value="5">已完成</option>
+            </select>
+        </td>
+        <td><input id="Texttime1" type="text" onclick="WdatePicker()" placeholder="/年/月/日" /></td>
+        <td><input id="Texttime2" type="text" onclick="WdatePicker()" placeholder="/年/月/日" /></td>
+        <td><input id="Button1" type="button" value="搜索" onclick="Show(1)" /></td>
+    </tr>
+</table>
+<table class="table table-hover">
+    <thead>
+        <tr style="text-align:center">
+            <td>店铺名</td>
+            <td>买家</td>
+            <td>订单日期</td>
+            <td>订单总额（￥）</td>
+            <td>订单状态</td>
+            <td>操作</td>
+        </tr>
+    </thead>
+    <tbody id="tb" style="text-align:center"></tbody>
+</table>
+<table class=" table-bordered table">
+    <tr>
+        <td>总记录数<span id="TotalCount"></span>条</td>
+        <td>总共<span id="TotalPage"></span>页</td>
+        <td>当前第<span id="CurrentPage"></span>页</td>
+        <td><a href="javascript:;" onclick="Show(1)">首页</a></td>
+        <td><a href="javascript:;" onclick="Show(CurrentPage-1)">上一页</a></td>
+        <td><a href="javascript:;" onclick="Show(CurrentPage+1)">下一页</a></td>
+        <td><a href="javascript:;" onclick="Show(TotalPage)">尾页</a></td>
+
+    </tr>
+</table>
+@section scripts
+{
+    <script src="~/Content/My97DatePicker/WdatePicker.js"></script>
+    <script>
+        //页面第一次加载
+        $(function () {
+            Show();
+        })
+        function Show(page) {
+            $.ajax({
+                url: "https://localhost:44311/api/GuanOrder",
+                type: "get",
+                dataType: "json",
+                data: { time1: $("#Texttime1").val(), time2: $("#Texttime2").val(), Stnames: $("#txtname").val(), Ostate: $("#Select1").val(), CurrentPage: page },
+                success: function (d) {
+                    $("#TotalCount").text(d.TotalCount)
+                    $("#TotalPage").text(d.TotalPage)
+                    $("#CurrentPage").text(d.CurrentPage)
+                    //最大页
+                    TotalPage = d.TotalPage;
+                    //当前页
+                    CurrentPage = d.CurrentPage;
+                    //清空表格
+                    $("#tb").empty();
+                    //循环遍历
+                    $(d.guanOrderModels).each(function () {
+                        //拼接tr一行
+                        var line = '<tr>'
+                            + '<td>' + this.Stname + '</td>'
+                            + '<td>' + this.Uname + '</td>'
+                            + '<td>' + this.OrderDate + '</td>'
+                            + '<td>' + this.heji + '</td>'
+                            + '<td>' + (this.OrderStatus == 4 ? "已退货" : "待发货") + '</td>'
+                            + '<td>' + '<a href=/GuanOrder/Filled/' + this.OId + '>查看</a>' + '</td>'
+                            + '</tr>'
+                        //将数据放入表格
+                        $("#tb").append(line);
+                    });
+                }
+            });
+        }
+    </script>
+}

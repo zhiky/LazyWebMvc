@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - 我的 ASP.NET 应用程序</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("购物系统", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("商品列表", "Show")</li>
+                    <li>@Html.ActionLink("我的购物车", "Car")</li>
+                    <li>@Html.ActionLink("我的订单", "OrderShow")</li>
+                </ul>
+            </div>
+            <div id="login" class="pull-right col-lg-offset-10">
+                @Html.ActionLink("登录", "Login.html");
+            </div>
+        </div>
+        </div>
+    
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - 我的 ASP.NET 应用程序</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+ 
+    <script>
+        function getCookie(username) {
+            if (document.cookie.length > 0) {
+                c_start = document.cookie.indexOf(username + "=")
+                if (c_start != -1) {
+                    c_start = c_start + username.length + 1
+                    c_end = document.cookie.indexOf(";", c_start)
+                    if (c_end == -1) c_end = document.cookie.length
+                    return unescape(document.cookie.substring(c_start, c_end))
+                }
+            }
+            return ""
+        }
+        $(function () {
+            if (getCookie("username") == undefined) {
+                $("#login").html("<a href='Login.html'>登录</a>")
+            }
+            else {
+                $("#login").html("欢迎您" + getCookie("username"));
+            }
+        })
+    </script>
+</body>
+</html>

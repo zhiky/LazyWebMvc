@@ -1,0 +1,121 @@
+﻿
+@{
+    ViewBag.Title = "Find";
+}
+
+<h2>评价管理</h2>
+<table class="table table-hover">
+    <tr>
+        <td>商品图片</td>
+        <td><img src="" alt="" id="Ptupian" /></td>
+    </tr>
+    <tr>
+        <td>商品名称</td>
+        <td><span id="Pname"></span></td>
+    </tr>
+    <tr>
+        <td>商品类型</td>
+        <td><span id="Sname"></span></td>
+    </tr>
+    <tr>
+        <td>商品品牌</td>
+        <td><span id="Bname"></span></td>
+    </tr>
+    <tr>
+        <td>评价用户</td>
+        <td><input id="Textname" type="text" /></td>
+    </tr>
+    <tr>
+        <td>用户满意度</td>
+        <td><select id="xiala"></select></td>
+    </tr>
+    <tr>
+        <td>评价内容</td>
+        <td><textarea id="TextArea1" rows="2" cols="20"></textarea></td>
+    </tr>
+    <tr>
+        <td><input id="Button1" type="button" value="确认" onclick="Add()" /></td>
+    </tr>
+</table>
+@section scripts{
+    <script>
+        //页面第一次加载
+        $(function () {
+            Pingjia()
+            bang();
+        })
+        //cookie取用户名
+        function getCookie(username) {
+            if (document.cookie.length > 0) {
+                c_start = document.cookie.indexOf(username + "=")
+                if (c_start != -1) {
+                    c_start = c_start + username.length + 1
+                    c_end = document.cookie.indexOf(";", c_start)
+                    if (c_end == -1) c_end = document.cookie.length
+                    return unescape(document.cookie.substring(c_start, c_end))
+                }
+            }
+            return ""
+        }
+        function bang() {
+            $.ajax({
+                url: "https://localhost:44311/api/Bandla",
+                type: "get",
+                dataType: "json",
+                success: function (d) {
+                    $("#xiala").empty();
+                    $("#xiala").append("<option value=0>--请选择--</option>")
+                    $(d).each(function () {
+                        var opt = "<option value="+ this.Amessage + ">" + this.Apj + "</option>"
+                        $("#xiala").append(opt);
+                    });
+
+                }
+            });
+        }
+        //评价(反填)
+        function Pingjia() {
+            $.ajax({
+                url: 'https://localhost:44311/api/Pingjia/' +@ViewContext.RouteData.Values["id"],
+                type: 'get',
+                dataType: 'json',
+                success: function (d) {
+                    $("#Ptupian").val(d.Ptupian);
+                    $("#Pname").text(d.Pname);
+                    $("#Sname").text(d.Sname);
+                    $("#Bname").text(d.Bname);
+                    $("#Textname").val(getCookie("username"));
+                }
+            })
+        }
+        //评价
+        function Add() {
+            //获取文本
+            var id=@ViewContext.RouteData.Values["id"];
+            var obj = {};
+            obj.Pid = id;
+            obj.Uname = $("#Textname").val();
+            obj.Amessage = $("#xiala").val();
+            obj.Ainfor = $("#TextArea1").val();
+            var today = new Date();
+            var y = today.getFullYear();
+            var m = today.getMonth();
+            var d = today.getDay();
+            var h = today.getHours();
+            var a = today.getMinutes();
+            obj.Atime = y + "/" + m + "/" + d + "   " + h + ":" + a;
+
+            //添加
+            $.ajax({
+                url: 'https://localhost:44311/api/Pingjia/',
+                type: 'post',
+                dataType: 'json',
+                data: obj,
+                success: function (d) {
+                    alert("评价成功！");
+                    location.href = '/Order/OrderShow';
+                }
+            })
+        }
+    </script>
+}
